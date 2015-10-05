@@ -1,0 +1,21 @@
+
+require:
+   node-sass
+   quaint -> tools
+
+main{*match} =
+   {@, options = {=}} when @is-quaint-engine ->
+      @register-macros with {
+         sass{engine, body} =
+            code = tools.dedent{tools.raw-relative{body}}
+            css = node-sass.render-sync{
+               data = code
+               indented-syntax = options.indented-syntax
+            }.css
+            style[raw] % css
+      }
+   {options = {=}} ->
+      {@} -> main{@, options}
+
+provide = main
+
