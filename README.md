@@ -21,6 +21,9 @@ $ quaint -p 'sass{"indentedSyntax": true}' file.q
 
 ### Quaint
 
+`quaint-sass` provides the `sass` macro which you can use to inline
+SASS or SCSS.
+
 ```quaint
 plugin sass ::
   indentedSyntax = true
@@ -29,8 +32,12 @@ sass ::
   #post
     color: blue
     background: red
-    .article
+    .author
       color: green
+
+#post %
+  .author % ME
+  Hello this is a post! I have horrible taste in color!
 ```
 
 
