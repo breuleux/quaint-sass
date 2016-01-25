@@ -8,26 +8,32 @@ code in
 [Quaint](http://breuleux.github.io/quaint)
 markup.
 
-## Usage
 
-### Command-line
+## Install
 
-```bash
-$ npm install quaint-sass
-$ quaint -p sass file.q
-$ quaint -p 'sass{"indentedSyntax": true}' file.q
+    quaint --setup sass
+
+
+## Sample configuration
+
+This configuration entry must be added in the `plugins` section of
+`quaint.json`:
+
+```json
+"sass": {
+  "indentedSyntax": true
+}
 ```
 
 
-### Quaint
+## Usage
 
 `quaint-sass` provides the `sass` macro which you can use to inline
 SASS or SCSS.
 
-```quaint
-plugin sass ::
-  indentedSyntax = true
+Using the sample configuration above:
 
+```quaint
 sass ::
   #post
     color: blue
