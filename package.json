@@ -1,16 +1,16 @@
 {
   "name": "quaint-sass",
   "description": "Embed SASS in Quaint",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "format": "cjs",
   "repository": {
     "type": "git",
     "url": "https://github.com/breuleux/quaint-sass"
   },
   "keywords": [
-      "quaint",
-      "quaint-plugin",
-      "sass"
+    "quaint",
+    "quaint-plugin",
+    "sass"
   ],
   "author": "Olivier Breuleux",
   "license": "MIT",
