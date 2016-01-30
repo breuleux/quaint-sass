@@ -24,6 +24,10 @@ kreg.register{Transformer.prototype} with {
 main{*match} =
    {@, options = {=}} when @is-quaint-engine ->
 
+      make-transformer{ext, docs} =
+         Transformer{ext === .sass} with
+            [options.variables or {=}] & docs.sass-variables.to-object{}
+
       @register-documents with {
          sass-variables = @quaint.MapDocument{}
       }
@@ -32,8 +36,7 @@ main{*match} =
          resource & {
             dest = resource.dest.replace{new RegExp{'\.{ext}$'}, ".css"}
             type = .css
-            transform = Transformer{ext === .sass} with
-               @documents.sass-variables.to-object{}
+            transform = make-transformer{ext, @documents}
          }
 
       @formatters.html.register-transformers with {
@@ -44,10 +47,8 @@ main{*match} =
       icompiler{ext}{engine, body} =
          code = @tools.dedent{@tools.raw-relative{body}}
          engine.deferred with {path, docs} ->
-            t = Transformer{ext === .sass} with
-               docs.sass-variables.to-object{}
             style[raw] %
-               t.transform{code}
+               make-transformer{ext, docs}.transform{code}
 
       @register-macros with {
          sass = icompiler{.sass}

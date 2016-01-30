@@ -7,11 +7,8 @@ require:
 async quaint-setup{config, instructions} =
    url = "https://github.com/breuleux/quaint-sass"
    print 'Plugin documentation: {chalk.bold.cyan{url}}'
-
    data = config.plugins.sass or= {=}
-   istx = await inq.confirm{"Use the indent-based syntax?"} with
-      {default = data.indented-syntax or false}
-   data.indented-syntax = istx
+   data.variables or= {=}
 
 
 provide = quaint-setup
