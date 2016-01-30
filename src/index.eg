@@ -7,19 +7,19 @@ require:
 
 class SassTransformer:
 
-   constructor{@indented-syntax, @variables} =
-      @vcode = [items{@variables} each {k, v} -> '${k}: {v}'].join{";\n"}
+   constructor{@indented-syntax, @definitions, @variables} =
+      @vcode = [items{@variables} each {k, v} -> '${k}: {v}'].join{";\n"} + ";\n"
 
    transform{code, p, resolve} =
-      full-code = @vcode + "\n" + code
+      full-code = {@definitions, @vcode, code}.join{"\n"}
       css = node-sass.render-sync{
          data = full-code
          indented-syntax = @indented-syntax
          importer{var url, prev, done} =
             p2 = path.join{path.dirname{p}, '_{url}.sass'}
-            {file = p2
-             contents and data = resolve{p2}.text}
-      }.css
+            resolve{p2}
+            {file = p2}
+      }.css.to-string{}
 
 
 kreg.register{SassTransformer.prototype} with {
@@ -39,7 +39,11 @@ main{*match} =
             dest = resource.dest.replace{new RegExp{'\.{ext}$'}, ".css"}
             dest-url = resource.dest-url.replace{new RegExp{'\.{ext}$'}, ".css"}
             type = .css
-            transform = SassTransformer{ext === .sass, options.variables or {=}}
+            transform = SassTransformer{
+               ext === .sass
+               options['{ext}Definitions'] or ""
+               options.variables or {=}
+            }
          }
 
       @formatters.html.register-transformers with {
@@ -50,8 +54,11 @@ main{*match} =
       icompiler{ext}{engine, body} =
          code = @tools.dedent{@tools.raw-relative{body}}
          engine.deferred with {path, docs} ->
-            t = SassTransformer{ext === .sass} with
+            t = SassTransformer{
+               ext === .sass
+               options['{ext}Definitions'] or ""
                [options.variables or {=}] & docs.sass-variables.to-object{}
+            }
             style[raw] %
                t.transform{code, docs.meta.get-raw{.orig-path}} with
                   file -> @read-resource{.resource, file}
