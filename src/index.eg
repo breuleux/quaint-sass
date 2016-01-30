@@ -5,7 +5,7 @@ require:
    path
 
 
-class Transformer:
+class SassTransformer:
 
    constructor{@indented-syntax, @variables} =
       @vcode = [items{@variables} each {k, v} -> '${k}: {v}'].join{";\n"}
@@ -22,7 +22,7 @@ class Transformer:
       }.css
 
 
-kreg.register{Transformer.prototype} with {
+kreg.register{SassTransformer.prototype} with {
    type-id = "72a699f6-c6e9-11e5-8009-b7cc7a11abcd"
 }
 
@@ -39,7 +39,7 @@ main{*match} =
             dest = resource.dest.replace{new RegExp{'\.{ext}$'}, ".css"}
             dest-url = resource.dest-url.replace{new RegExp{'\.{ext}$'}, ".css"}
             type = .css
-            transform = Transformer{ext === .sass, options.variables or {=}}
+            transform = SassTransformer{ext === .sass, options.variables or {=}}
          }
 
       @formatters.html.register-transformers with {
@@ -50,7 +50,7 @@ main{*match} =
       icompiler{ext}{engine, body} =
          code = @tools.dedent{@tools.raw-relative{body}}
          engine.deferred with {path, docs} ->
-            t = Transformer{ext === .sass} with
+            t = SassTransformer{ext === .sass} with
                [options.variables or {=}] & docs.sass-variables.to-object{}
             style[raw] %
                t.transform{code, docs.meta.get-raw{.orig-path}} with
