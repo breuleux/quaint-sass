@@ -2,17 +2,23 @@
 require:
    node-sass
    kaiser/reg as kreg
+   path
+
 
 class Transformer:
 
    constructor{@indented-syntax, @variables} =
       @vcode = [items{@variables} each {k, v} -> '${k}: {v}'].join{";\n"}
 
-   transform{code} =
+   transform{code, p, resolve} =
       full-code = @vcode + "\n" + code
       css = node-sass.render-sync{
          data = full-code
          indented-syntax = @indented-syntax
+         importer{var url, prev, done} =
+            p2 = path.join{path.dirname{p}, '_{url}.sass'}
+            {file = p2
+             contents and data = resolve{p2}.text}
       }.css
 
 
@@ -31,6 +37,7 @@ main{*match} =
       rcompiler{ext}{resource} =
          resource & {
             dest = resource.dest.replace{new RegExp{'\.{ext}$'}, ".css"}
+            dest-url = resource.dest-url.replace{new RegExp{'\.{ext}$'}, ".css"}
             type = .css
             transform = Transformer{ext === .sass, options.variables or {=}}
          }
@@ -46,7 +53,8 @@ main{*match} =
             t = Transformer{ext === .sass} with
                [options.variables or {=}] & docs.sass-variables.to-object{}
             style[raw] %
-               t.transform{code}
+               t.transform{code, docs.meta.get-raw{.orig-path}} with
+                  file -> @read-resource{.resource, file}
 
       @register-macros with {
          sass = icompiler{.sass}
