@@ -1,19 +1,66 @@
 
 require:
    node-sass
-   quaint -> tools
+   kaiser/reg as kreg
+
+class Transformer:
+
+   constructor{@indented-syntax, @variables} =
+      @vcode = [items{@variables} each {k, v} -> '${k}: {v}'].join{";\n"}
+
+   transform{code} =
+      full-code = @vcode + "\n" + code
+      css = node-sass.render-sync{
+         data = full-code
+         indented-syntax = @indented-syntax
+      }.css
+
+
+kreg.register{Transformer.prototype} with {
+   type-id = "72a699f6-c6e9-11e5-8009-b7cc7a11abcd"
+}
+
 
 main{*match} =
    {@, options = {=}} when @is-quaint-engine ->
-      @register-macros with {
-         sass{engine, body} =
-            code = tools.dedent{tools.raw-relative{body}}
-            css = node-sass.render-sync{
-               data = code
-               indented-syntax = options.indented-syntax
-            }.css
-            style[raw] % css
+
+      @register-documents with {
+         sass-variables = @quaint.MapDocument{}
       }
+
+      rcompiler{ext}{resource} =
+         resource & {
+            dest = resource.dest.replace{new RegExp{'\.{ext}$'}, ".css"}
+            type = .css
+            transform = Transformer{ext === .sass} with
+               @documents.sass-variables.to-object{}
+         }
+
+      @formatters.html.register-transformers with {
+         sass = {compile = rcompiler{.sass}}
+         scss = {compile = rcompiler{.scss}}
+      }
+
+      icompiler{ext}{engine, body} =
+         code = @tools.dedent{@tools.raw-relative{body}}
+         engine.deferred with {path, docs} ->
+            t = Transformer{ext === .sass} with
+               docs.sass-variables.to-object{}
+            style[raw] %
+               t.transform{code}
+
+      @register-macros with {
+         sass = icompiler{.sass}
+         scss = icompiler{.scss}
+         sass-variables{engine, body} =
+            body.statements{} each stmt ->
+               match stmt.extract{"\\k = \\v", "\\k: \\v"}:
+                  {=> k, => v} ->
+                     engine.into{.sass-variables, {k.raw{}.replace{R"^\$", ""}, v.raw{}}}
+                  else ->
+                     throw E.sass{'Invalid sass variable declaration: {stmt.raw{}}'}
+      }
+
    {options = {=}} ->
       {@} -> main{@, options}
 
