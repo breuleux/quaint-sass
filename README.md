@@ -2,11 +2,12 @@
 quaint-sass
 ===========
 
-Allows inline
-[SASS](http://sass-lang.com/)
-code in
 [Quaint](http://breuleux.github.io/quaint)
-markup.
+plugin for [SASS](http://sass-lang.com/).
+
+Allows `.sass` and `.scss` files to be required as resources, as well
+as inline sass/scss code in markup. Common variables and functions may
+also be included in configuration.
 
 
 ## Install
@@ -21,17 +22,32 @@ This configuration entry must be added in the `plugins` section of
 
 ```json
 "sass": {
-  "indentedSyntax": true
+  "sassDefinitions": "@function double($x)\n  @return $x * 2"
+  "variables": {
+    "width-body": "100px",
+    "width-side": "double($width-body)"
+  }
 }
 ```
 
 
-## Usage
+## Resources
 
-`quaint-sass` provides the `sass` macro which you can use to inline
-SASS or SCSS.
+With this plugin, you can include SASS/SCSS files as resources, for
+instance:
 
-Using the sample configuration above:
+```
+resources ::
+  style.sass
+```
+
+The files will be compiled and saved in CSS format.
+
+
+## Inline styles
+
+`quaint-sass` provides the `sass` and `scss` macros which you can use
+to inline SASS or SCSS:
 
 ```quaint
 sass ::
@@ -46,12 +62,32 @@ sass ::
   Hello this is a post! I have horrible taste in color!
 ```
 
+Or:
+
+```quaint
+scss ::
+  #post {
+    color: blue;
+    background: red;
+    .author {
+      color: green;
+    }
+  }
+```
+
 
 ## Options
 
-### `indentedSyntax`
+### `sassDefinitions` and `scssDefinitions`
 
-Default: false
+The contents of that string will be inserted before every `.sass` or
+`.scss` file imported, and also before every inline `sass` or `scss`
+directive.
 
-Whether to use the indent-based syntax or not.
+### `variables`
+
+This is a map of variable name to value. The variables will be
+available in every `.sass` or `.scss` file, and in every inline `sass`
+or `scss` directive.
+
 
