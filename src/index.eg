@@ -8,7 +8,7 @@ require:
 class SassTransformer:
 
    constructor{@indented-syntax, @definitions, @variables} =
-      @vcode = [items{@variables} each {k, v} -> '${k}: {v}'].join{";\n"} + ";\n"
+      @vcode = [items{@variables} each {k, v} -> '${k}: {v};\n'].join{""}
 
    transform{code, p, resolve} =
       full-code = {@definitions, @vcode, code}.join{"\n"}
