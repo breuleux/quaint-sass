@@ -19,7 +19,7 @@
     "chalk": "^1.1.1",
     "earlgrey-runtime": "^0.1.0",
     "kaiser": ">=0.0.4",
-    "node-sass": "^3.3.3",
+    "node-sass": "^4.11.0",
     "quaint": ">=0.0.14"
   },
   "devDependencies": {
